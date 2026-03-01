@@ -1,6 +1,6 @@
 ﻿<div align="center">
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=30&pause=1000&color=F5A623&center=true&vCenter=true&width=700&lines=🥇+Gold+Price+Prediction;AI-Powered+Market+Forecasting;KNN+Regression+%7C+R²+≈+99.8%25" alt="Typing SVG" />
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=30&pause=1000&color=F5A623&center=true&vCenter=true&width=700&lines=Gold+Price+Prediction;AI-Powered+Market+Forecasting;KNN+Regression+%7C+R2+~+99.8%25;Flask+%2B+scikit-learn+%2B+Python" alt="Gold Price Prediction" />
 
 <br/>
 
@@ -131,8 +131,6 @@ The workflow covers:
 
 All models trained on **80%** of the data and evaluated on the remaining **20%** (`random_state=0`).
 
-<div align="center">
-
 | Model | R² | MAE | RMSE |
 |:---|:---:|:---:|:---:|
 | 🥇 **KNN (k=2)** ← _selected_ | **0.9983** | **$0.59** | **$1.10** |
@@ -140,8 +138,6 @@ All models trained on **80%** of the data and evaluated on the remaining **20%**
 | Decision Tree | 0.9934 | $0.91 | $1.83 |
 | Multiple Linear Regression | 0.9612 | $2.44 | $4.45 |
 | Simple Linear Regression | 0.8741 | $4.37 | $8.01 |
-
-</div>
 
 > **KNN with k=2** was selected as the best model based on elbow-curve analysis (k=1 to 20).  
 > It explains **99.83%** of variance in GLD closing prices on completely unseen test data.
