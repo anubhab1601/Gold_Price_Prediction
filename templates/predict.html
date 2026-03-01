@@ -42,7 +42,7 @@
 
                 <!-- GDX_Close -->
                 <div class="form-group">
-                    <label><i class="fas fa-mountain"></i> GDX_Close &nbsp;<small>(Gold Miners ETF &mdash; strongest predictor, corr=0.9755)</small></label>
+                    <label><i class="fas fa-mountain"></i> GDX_Close &nbsp;<small>(Gold Miners ETF - strongest predictor, corr=0.9755)</small></label>
                     <div class="slider-group">
                         <input type="range" id="gdxSlider" min="{{ stats.gdx_min }}" max="{{ stats.gdx_max }}" value="25" step="0.1" oninput="syncInput('gdxSlider','gdxVal')">
                         <input type="number" id="gdxVal" class="slider-value" value="25" step="0.1" oninput="syncSlider('gdxVal','gdxSlider')">
@@ -52,7 +52,7 @@
 
                 <!-- SF_Price -->
                 <div class="form-group">
-                    <label><i class="fas fa-gem"></i> SF_Price &nbsp;<small>(Silver Futures &mdash; corr=0.9474)</small></label>
+                    <label><i class="fas fa-gem"></i> SF_Price &nbsp;<small>(Silver Futures - corr=0.9474)</small></label>
                     <div class="slider-group">
                         <input type="range" id="sfSlider" min="{{ stats.sf_min }}" max="{{ stats.sf_max }}" value="50000" step="10" oninput="syncInput('sfSlider','sfVal')">
                         <input type="number" id="sfVal" class="slider-value" value="50000" step="10" oninput="syncSlider('sfVal','sfSlider')">
@@ -62,7 +62,7 @@
 
                 <!-- PLT_Price -->
                 <div class="form-group">
-                    <label><i class="fas fa-trophy"></i> PLT_Price &nbsp;<small>(Platinum &mdash; corr=0.7759)</small></label>
+                    <label><i class="fas fa-trophy"></i> PLT_Price &nbsp;<small>(Platinum - corr=0.7759)</small></label>
                     <div class="slider-group">
                         <input type="range" id="pltSlider" min="{{ stats.plt_min }}" max="{{ stats.plt_max }}" value="1100" step="1" oninput="syncInput('pltSlider','pltVal')">
                         <input type="number" id="pltVal" class="slider-value" value="1100" step="1" oninput="syncSlider('pltVal','pltSlider')">
@@ -72,7 +72,7 @@
 
                 <!-- USDI_Price -->
                 <div class="form-group">
-                    <label><i class="fas fa-dollar-sign"></i> USDI_Price &nbsp;<small>(US Dollar Index &mdash; corr=&minus;0.7216)</small></label>
+                    <label><i class="fas fa-dollar-sign"></i> USDI_Price &nbsp;<small>(US Dollar Index - corr=&minus;0.7216)</small></label>
                     <div class="slider-group">
                         <input type="range" id="usdiSlider" min="{{ stats.usdi_min }}" max="{{ stats.usdi_max }}" value="92" step="0.1" oninput="syncInput('usdiSlider','usdiVal')">
                         <input type="number" id="usdiVal" class="slider-value" value="92" step="0.1" oninput="syncSlider('usdiVal','usdiSlider')">
@@ -82,7 +82,7 @@
 
                 <!-- OF_Price -->
                 <div class="form-group">
-                    <label><i class="fas fa-oil-can"></i> OF_Price &nbsp;<small>(Oil Futures &mdash; corr=0.7107)</small></label>
+                    <label><i class="fas fa-oil-can"></i> OF_Price &nbsp;<small>(Oil Futures - corr=0.7107)</small></label>
                     <div class="slider-group">
                         <input type="range" id="ofSlider" min="{{ stats.of_min }}" max="{{ stats.of_max }}" value="55" step="0.1" oninput="syncInput('ofSlider','ofVal')">
                         <input type="number" id="ofVal" class="slider-value" value="55" step="0.1" oninput="syncSlider('ofVal','ofSlider')">
@@ -275,4 +275,5 @@
 
 </body>
 </html>
+
 
