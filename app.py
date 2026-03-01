@@ -4,6 +4,9 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 app = Flask(__name__)
@@ -13,7 +16,12 @@ FEATURES = [
     'PLT_Price', 'PLD_Price', 'USDI_Price', 'GDX_Close', 'USO_Close', 'RHO_PRICE'
 ]
 
-# ── Load dataset and train model ──────────────────────────────────────────────
+FEATURE_LABELS = [
+    'S&P 500', 'Dow Jones', 'EUR/USD', 'Oil Futures', 'Silver Fut.',
+    'Platinum', 'Palladium', 'USD Index', 'GDX ETF', 'USO ETF', 'Rhodium'
+]
+
+# ── Load dataset and train all models ─────────────────────────────────────────
 def load_and_train():
     df = pd.read_csv("Dataset/FINAL_USO.csv")
     df['Date'] = pd.to_datetime(df['Date'])
@@ -30,29 +38,89 @@ def load_and_train():
     x_train_sc = sc.fit_transform(x_train)
     x_test_sc  = sc.transform(x_test)
 
-    # KNN with optimal k = 2 (from elbow curve in notebook)
+    # ── Best model: KNN (k=2) ─────────────────────────────────────
     knn = KNeighborsRegressor(n_neighbors=2)
     knn.fit(x_train_sc, y_train)
-
-    y_pred = knn.predict(x_test_sc)
+    y_pred_knn = knn.predict(x_test_sc)
 
     metrics = {
-        'r2'  : round(float(r2_score(y_test, y_pred)), 4),
-        'mae' : round(float(mean_absolute_error(y_test, y_pred)), 4),
-        'mse' : round(float(mean_squared_error(y_test, y_pred)), 4),
-        'rmse': round(float(np.sqrt(mean_squared_error(y_test, y_pred))), 4),
+        'r2'  : round(float(r2_score(y_test, y_pred_knn)), 4),
+        'mae' : round(float(mean_absolute_error(y_test, y_pred_knn)), 4),
+        'mse' : round(float(mean_squared_error(y_test, y_pred_knn)), 4),
+        'rmse': round(float(np.sqrt(mean_squared_error(y_test, y_pred_knn))), 4),
+    }
+
+    # ── Multi-model comparison ────────────────────────────────────
+    compare_defs = [
+        ('KNN (k=2)',        KNeighborsRegressor(n_neighbors=2)),
+        ('Linear Reg',       LinearRegression()),
+        ('Decision Tree',    DecisionTreeRegressor(random_state=0)),
+        ('Random Forest',    RandomForestRegressor(n_estimators=100, random_state=0, n_jobs=-1)),
+        ('Gradient Boost',   GradientBoostingRegressor(n_estimators=100, random_state=0)),
+    ]
+    model_results = []
+    for name, mdl in compare_defs:
+        mdl.fit(x_train_sc, y_train)
+        yp = mdl.predict(x_test_sc)
+        model_results.append({
+            'name': name,
+            'r2'  : round(float(r2_score(y_test, yp)), 4),
+            'mae' : round(float(mean_absolute_error(y_test, yp)), 4),
+            'rmse': round(float(np.sqrt(mean_squared_error(y_test, yp))), 4),
+        })
+
+    # ── Time-series (sampled ~200 points) ────────────────────────
+    step = max(1, len(df) // 200)
+    df_s  = df.iloc[::step]
+    ts_dates  = df_s['Date'].dt.strftime('%Y-%m-%d').tolist()
+    ts_prices = [round(float(v), 2) for v in df_s['Close'].tolist()]
+
+    # ── Actual vs Predicted (KNN, sampled ~150 pts) ───────────────
+    pairs = sorted(zip(y_test.tolist(), y_pred_knn.tolist()), key=lambda p: p[0])
+    step2 = max(1, len(pairs) // 150)
+    pairs = pairs[::step2]
+    actual_vals  = [round(float(a), 2) for a, _ in pairs]
+    predict_vals = [round(float(p), 2) for _, p in pairs]
+
+    # ── Feature correlations with GLD Close ──────────────────────
+    corr = df[FEATURES + ['Close']].corr()['Close'].drop('Close')
+    feat_corr = {
+        'labels': FEATURE_LABELS,
+        'values': [round(float(corr[f]), 4) for f in FEATURES],
+    }
+
+    # ── Price distribution (12 bins) ─────────────────────────────
+    hist, edges = np.histogram(df['Close'].values, bins=12)
+    dist = {
+        'labels': [f"${round(edges[i], 0):.0f}–${round(edges[i+1], 0):.0f}" for i in range(len(hist))],
+        'values': [int(v) for v in hist.tolist()],
+    }
+
+    # ── KNN elbow curve data (k=1..15) ───────────────────────────
+    elbow_k = list(range(1, 16))
+    elbow_r2  = []
+    elbow_mae = []
+    for k in elbow_k:
+        m = KNeighborsRegressor(n_neighbors=k)
+        m.fit(x_train_sc, y_train)
+        yp = m.predict(x_test_sc)
+        elbow_r2.append(round(float(r2_score(y_test, yp)), 4))
+        elbow_mae.append(round(float(mean_absolute_error(y_test, yp)), 4))
+
+    # ── Train vs Test split visual ────────────────────────────────
+    split_data = {
+        'train': int(x_train.shape[0]),
+        'test' : int(x_test.shape[0]),
     }
 
     stats = {
         'total_records': int(df.shape[0]),
         'date_start'   : df['Date'].min().strftime('%b %d, %Y'),
         'date_end'     : df['Date'].max().strftime('%b %d, %Y'),
-        # Target (GLD Close) stats
         'close_min' : round(float(df['Close'].min()), 2),
         'close_max' : round(float(df['Close'].max()), 2),
         'close_mean': round(float(df['Close'].mean()), 2),
         'close_std' : round(float(df['Close'].std()), 2),
-        # Feature ranges
         'sp_min'  : round(float(df['SP_close'].min()), 2),
         'sp_max'  : round(float(df['SP_close'].max()), 2),
         'dj_min'  : round(float(df['DJ_close'].min()), 2),
@@ -75,23 +143,35 @@ def load_and_train():
         'uso_max' : round(float(df['USO_Close'].max()), 2),
         'rho_min' : round(float(df['RHO_PRICE'].min()), 2),
         'rho_max' : round(float(df['RHO_PRICE'].max()), 2),
-        # Dataset means for the 6 hidden features (used as defaults when UI sends only top-5)
         'sp_mean'  : round(float(df['SP_close'].mean()), 2),
         'dj_mean'  : round(float(df['DJ_close'].mean()), 2),
         'eu_mean'  : round(float(df['EU_Price'].mean()), 4),
         'pld_mean' : round(float(df['PLD_Price'].mean()), 2),
         'uso_mean' : round(float(df['USO_Close'].mean()), 2),
         'rho_mean' : round(float(df['RHO_PRICE'].mean()), 2),
-        # Model info
         'best_model': 'KNN (n_neighbors=2)',
         'optimal_k' : 2,
         **metrics,
     }
 
-    return knn, sc, stats
+    dashboard = {
+        'model_results' : model_results,
+        'ts_dates'      : ts_dates,
+        'ts_prices'     : ts_prices,
+        'actual_vals'   : actual_vals,
+        'predict_vals'  : predict_vals,
+        'feat_corr'     : feat_corr,
+        'dist'          : dist,
+        'elbow_k'       : elbow_k,
+        'elbow_r2'      : elbow_r2,
+        'elbow_mae'     : elbow_mae,
+        'split_data'    : split_data,
+    }
+
+    return knn, sc, stats, dashboard
 
 # Initialise once at startup
-knn_model, scaler, dataset_stats = load_and_train()
+knn_model, scaler, dataset_stats, dashboard_data = load_and_train()
 
 # ── Routes ────────────────────────────────────────────────────────────────────
 @app.route('/')
@@ -105,6 +185,14 @@ def predict_page():
 @app.route('/about')
 def about():
     return render_template('about.html', stats=dataset_stats)
+
+@app.route('/dashboard')
+def dashboard():
+    return render_template(
+        'dashboard.html',
+        stats=dataset_stats,
+        dash=dashboard_data,
+    )
 
 @app.route('/api/predict', methods=['POST'])
 def predict():
@@ -155,6 +243,10 @@ def predict():
 @app.route('/api/stats')
 def get_stats():
     return jsonify(dataset_stats)
+
+@app.route('/api/dashboard')
+def get_dashboard():
+    return jsonify(dashboard_data)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5001)
