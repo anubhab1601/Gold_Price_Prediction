@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -59,7 +59,7 @@
             </div>
 
             <div class="about-card">
-                <h3><i class="fas fa-robot"></i> Best Model — KNN</h3>
+                <h3><i class="fas fa-robot"></i> Best Model - KNN</h3>
                 <ul>
                     <li><strong>Algorithm:</strong> K-Nearest Neighbours Regression</li>
                     <li><strong>Optimal k:</strong> {{ stats.optimal_k }} (found via elbow curve, k=1–20)</li>
@@ -74,17 +74,17 @@
             <div class="about-card">
                 <h3><i class="fas fa-list-ul"></i> 11 Features Used</h3>
                 <ul>
-                    <li><strong>SP_close</strong> — S&amp;P 500 Index Close</li>
-                    <li><strong>DJ_close</strong> — Dow Jones Industrial Average</li>
-                    <li><strong>EU_Price</strong> — Euro / USD Exchange Rate</li>
-                    <li><strong>OF_Price</strong> — Oil Futures Price</li>
-                    <li><strong>SF_Price</strong> — Silver Futures Price</li>
-                    <li><strong>PLT_Price</strong> — Platinum Price</li>
-                    <li><strong>PLD_Price</strong> — Palladium Price</li>
-                    <li><strong>USDI_Price</strong> — US Dollar Index</li>
-                    <li><strong>GDX_Close</strong> — Gold Miners ETF (★ strongest)</li>
-                    <li><strong>USO_Close</strong> — Oil ETF Close</li>
-                    <li><strong>RHO_PRICE</strong> — Rhodium Price</li>
+                    <li><strong>SP_close</strong> - S&amp;P 500 Index Close</li>
+                    <li><strong>DJ_close</strong> - Dow Jones Industrial Average</li>
+                    <li><strong>EU_Price</strong> - Euro / USD Exchange Rate</li>
+                    <li><strong>OF_Price</strong> - Oil Futures Price</li>
+                    <li><strong>SF_Price</strong> - Silver Futures Price</li>
+                    <li><strong>PLT_Price</strong> - Platinum Price</li>
+                    <li><strong>PLD_Price</strong> - Palladium Price</li>
+                    <li><strong>USDI_Price</strong> - US Dollar Index</li>
+                    <li><strong>GDX_Close</strong> - Gold Miners ETF (★ strongest)</li>
+                    <li><strong>USO_Close</strong> - Oil ETF Close</li>
+                    <li><strong>RHO_PRICE</strong> - Rhodium Price</li>
                 </ul>
             </div>
 
@@ -107,12 +107,12 @@
             <div class="about-card">
                 <h3><i class="fas fa-trophy"></i> All Models Compared</h3>
                 <ul>
-                    <li>Simple Linear Regression (GDX_Close only) — R²=0.9493</li>
-                    <li>Multiple Linear Regression (all 11 features) — R²=0.9838</li>
-                    <li>Decision Tree (squared_error) — R²=0.9894</li>
-                    <li>Decision Tree (friedman_mse) — R²=0.9911</li>
-                    <li>Random Forest (n_estimators=100) — R²=0.9954</li>
-                    <li><strong>KNN (k=2) ← Best Model — R²={{ stats.r2 }}</strong></li>
+                    <li>Simple Linear Regression (GDX_Close only) - R²=0.9493</li>
+                    <li>Multiple Linear Regression (all 11 features) - R²=0.9838</li>
+                    <li>Decision Tree (squared_error) - R²=0.9894</li>
+                    <li>Decision Tree (friedman_mse) - R²=0.9911</li>
+                    <li>Random Forest (n_estimators=100) - R²=0.9954</li>
+                    <li><strong>KNN (k=2) ← Best Model - R²={{ stats.r2 }}</strong></li>
                 </ul>
             </div>
 
@@ -145,7 +145,7 @@
             <div class="about-card">
                 <h3><i class="fas fa-search"></i> Feature Selection</h3>
                 <ul>
-                    <li>Correlation analysis — top 3: GDX_Close, SF_Price, PLT_Price</li>
+                    <li>Correlation analysis - top 3: GDX_Close, SF_Price, PLT_Price</li>
                     <li>Random Forest feature importance confirms GDX_Close dominance</li>
                     <li>RHO_PRICE has lowest correlation (0.096) but retained for completeness</li>
                     <li>All 11 features used in final model for best R²</li>
@@ -178,3 +178,4 @@
 
 </body>
 </html>
+
