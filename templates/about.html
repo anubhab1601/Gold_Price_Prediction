@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Gold Price AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="container">
+        <div class="nav-brand">
+            <i class="fas fa-coins"></i>
+            <span>Gold Price AI</span>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="/">Home</a></li>
+            <li><a href="/predict">Predict</a></li>
+            <li><a href="/about" class="active">About</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Hero banner -->
+<section class="hero" style="padding: 60px 0;">
+    <div class="container">
+        <h1 class="hero-title" style="font-size:2.5rem;">About This Project</h1>
+        <p class="hero-subtitle">Gold Price Prediction using Machine Learning</p>
+    </div>
+</section>
+
+<!-- About content -->
+<section class="about-section">
+    <div class="container">
+
+        <h2 class="section-title">Project Overview</h2>
+        <p style="text-align:center;color:var(--text-light);max-width:700px;margin:0 auto 2.5rem;">
+            This web application predicts the GLD (Gold ETF) closing price using KNN Regression,
+            trained on 7 years of daily market trading data (2011–2018).
+        </p>
+
+        <div class="about-grid">
+
+            <div class="about-card">
+                <h3><i class="fas fa-database"></i> Dataset</h3>
+                <ul>
+                    <li><strong>Source:</strong> FINAL_USO.csv</li>
+                    <li><strong>Records:</strong> {{ "{:,}".format(stats.total_records) }} daily rows</li>
+                    <li><strong>Date Range:</strong> {{ stats.date_start }} to {{ stats.date_end }}</li>
+                    <li><strong>Total Columns:</strong> 81 (11 used as features)</li>
+                    <li><strong>Target:</strong> Close (GLD ETF closing price in USD)</li>
+                    <li><strong>Missing Values:</strong> None</li>
+                    <li><strong>Duplicates:</strong> None</li>
+                </ul>
+            </div>
+
+            <div class="about-card">
+                <h3><i class="fas fa-robot"></i> Best Model — KNN</h3>
+                <ul>
+                    <li><strong>Algorithm:</strong> K-Nearest Neighbours Regression</li>
+                    <li><strong>Optimal k:</strong> {{ stats.optimal_k }} (found via elbow curve, k=1–20)</li>
+                    <li><strong>Scaler:</strong> StandardScaler (fitted on train only)</li>
+                    <li><strong>Train / Test Split:</strong> 80% / 20%, random_state=0</li>
+                    <li><strong>R² Score:</strong> {{ stats.r2 }}</li>
+                    <li><strong>MAE:</strong> ${{ stats.mae }}</li>
+                    <li><strong>RMSE:</strong> ${{ stats.rmse }}</li>
+                </ul>
+            </div>
+
+            <div class="about-card">
+                <h3><i class="fas fa-list-ul"></i> 11 Features Used</h3>
+                <ul>
+                    <li><strong>SP_close</strong> — S&amp;P 500 Index Close</li>
+                    <li><strong>DJ_close</strong> — Dow Jones Industrial Average</li>
+                    <li><strong>EU_Price</strong> — Euro / USD Exchange Rate</li>
+                    <li><strong>OF_Price</strong> — Oil Futures Price</li>
+                    <li><strong>SF_Price</strong> — Silver Futures Price</li>
+                    <li><strong>PLT_Price</strong> — Platinum Price</li>
+                    <li><strong>PLD_Price</strong> — Palladium Price</li>
+                    <li><strong>USDI_Price</strong> — US Dollar Index</li>
+                    <li><strong>GDX_Close</strong> — Gold Miners ETF (★ strongest)</li>
+                    <li><strong>USO_Close</strong> — Oil ETF Close</li>
+                    <li><strong>RHO_PRICE</strong> — Rhodium Price</li>
+                </ul>
+            </div>
+
+            <div class="about-card">
+                <h3><i class="fas fa-chart-bar"></i> EDA Workflow</h3>
+                <ul>
+                    <li>Missing value analysis + heatmap</li>
+                    <li>Duplicate check</li>
+                    <li>GLD Close price trend over time</li>
+                    <li>Price trends of all key features (subplots)</li>
+                    <li>Distribution plots (histograms)</li>
+                    <li>Box plots for outlier visualization</li>
+                    <li>Trend columns bar chart (8 binary trend cols)</li>
+                    <li>IQR outlier detection per feature</li>
+                    <li>Correlation heatmap + bar chart</li>
+                    <li>Scatter plots + pairplot (top corr features)</li>
+                </ul>
+            </div>
+
+            <div class="about-card">
+                <h3><i class="fas fa-trophy"></i> All Models Compared</h3>
+                <ul>
+                    <li>Simple Linear Regression (GDX_Close only) — R²=0.9493</li>
+                    <li>Multiple Linear Regression (all 11 features) — R²=0.9838</li>
+                    <li>Decision Tree (squared_error) — R²=0.9894</li>
+                    <li>Decision Tree (friedman_mse) — R²=0.9911</li>
+                    <li>Random Forest (n_estimators=100) — R²=0.9954</li>
+                    <li><strong>KNN (k=2) ← Best Model — R²={{ stats.r2 }}</strong></li>
+                </ul>
+            </div>
+
+            <div class="about-card">
+                <h3><i class="fas fa-gem"></i> Key Insights</h3>
+                <ul>
+                    <li><strong>GDX_Close</strong> is the strongest predictor (corr=0.9755, RF importance=85.4%)</li>
+                    <li><strong>SF_Price</strong> is 2nd strongest (corr=0.9474)</li>
+                    <li><strong>USDI_Price</strong> has the strongest negative correlation (−0.72)</li>
+                    <li><strong>SP_close</strong> also negatively correlated (−0.68)</li>
+                    <li>GLD Close range: ${{ stats.close_min }} – ${{ stats.close_max }}</li>
+                    <li>GLD mean=${{ stats.close_mean }}, std=${{ stats.close_std }}</li>
+                    <li>KNN outperformed Random Forest with lower MAE (${{ stats.mae }} vs $0.84)</li>
+                </ul>
+            </div>
+
+            <div class="about-card">
+                <h3><i class="fas fa-code"></i> Tech Stack</h3>
+                <ul>
+                    <li><strong>Backend:</strong> Python / Flask</li>
+                    <li><strong>ML:</strong> Scikit-learn</li>
+                    <li><strong>Data:</strong> Pandas, NumPy</li>
+                    <li><strong>Visualization:</strong> Matplotlib, Seaborn</li>
+                    <li><strong>Frontend:</strong> HTML5, CSS3, Vanilla JS</li>
+                    <li><strong>Fonts:</strong> Inter (Google Fonts)</li>
+                    <li><strong>Icons:</strong> Font Awesome 6</li>
+                </ul>
+            </div>
+
+            <div class="about-card">
+                <h3><i class="fas fa-search"></i> Feature Selection</h3>
+                <ul>
+                    <li>Correlation analysis — top 3: GDX_Close, SF_Price, PLT_Price</li>
+                    <li>Random Forest feature importance confirms GDX_Close dominance</li>
+                    <li>RHO_PRICE has lowest correlation (0.096) but retained for completeness</li>
+                    <li>All 11 features used in final model for best R²</li>
+                    <li>StandardScaler normalises feature scales before KNN distance calculation</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Metrics band -->
+<section class="metrics-band">
+    <div class="container">
+        <div class="metrics-band-grid">
+            <div class="metric-band-item"><h3>{{ stats.r2 }}</h3><p>R² Score</p></div>
+            <div class="metric-band-item"><h3>${{ stats.mae }}</h3><p>MAE</p></div>
+            <div class="metric-band-item"><h3>${{ stats.rmse }}</h3><p>RMSE</p></div>
+            <div class="metric-band-item"><h3>{{ stats.optimal_k }}</h3><p>Optimal K</p></div>
+            <div class="metric-band-item"><h3>{{ "{:,}".format(stats.total_records) }}</h3><p>Training Records</p></div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <p>Gold Price Predictor &nbsp;|&nbsp; Built with <a href="https://flask.palletsprojects.com/">Flask</a> + Scikit-learn</p>
+    </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predict - Gold Price AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="container">
+        <div class="nav-brand">
+            <i class="fas fa-coins"></i>
+            <span>Gold Price AI</span>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="/">Home</a></li>
+            <li><a href="/predict" class="active">Predict</a></li>
+            <li><a href="/about">About</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Predict Section -->
+<section class="predict-section">
+    <div class="container">
+
+        <div class="predict-header">
+            <h1><i class="fas fa-search-dollar"></i> GLD Price Predictor</h1>
+            <p>Enter market indicator values (or use the sliders), then click Predict</p>
+        </div>
+
+        <div class="predict-layout">
+
+            <!-- Input Form -->
+            <div class="predict-form-card">
+                <h2><i class="fas fa-sliders-h" style="color:var(--primary-color);margin-right:8px;"></i>Top 5 Market Indicators</h2>
+
+                <!-- GDX_Close -->
+                <div class="form-group">
+                    <label><i class="fas fa-mountain"></i> GDX_Close &nbsp;<small>(Gold Miners ETF &mdash; strongest predictor, corr=0.9755)</small></label>
+                    <div class="slider-group">
+                        <input type="range" id="gdxSlider" min="{{ stats.gdx_min }}" max="{{ stats.gdx_max }}" value="25" step="0.1" oninput="syncInput('gdxSlider','gdxVal')">
+                        <input type="number" id="gdxVal" class="slider-value" value="25" step="0.1" oninput="syncSlider('gdxVal','gdxSlider')">
+                    </div>
+                    <div class="range-hint"><i class="fas fa-info-circle"></i> Dataset ref: {{ stats.gdx_min }} – {{ stats.gdx_max }} &nbsp;(any value accepted)</div>
+                </div>
+
+                <!-- SF_Price -->
+                <div class="form-group">
+                    <label><i class="fas fa-gem"></i> SF_Price &nbsp;<small>(Silver Futures &mdash; corr=0.9474)</small></label>
+                    <div class="slider-group">
+                        <input type="range" id="sfSlider" min="{{ stats.sf_min }}" max="{{ stats.sf_max }}" value="50000" step="10" oninput="syncInput('sfSlider','sfVal')">
+                        <input type="number" id="sfVal" class="slider-value" value="50000" step="10" oninput="syncSlider('sfVal','sfSlider')">
+                    </div>
+                    <div class="range-hint"><i class="fas fa-info-circle"></i> Dataset ref: {{ stats.sf_min }} – {{ stats.sf_max }} &nbsp;(any value accepted)</div>
+                </div>
+
+                <!-- PLT_Price -->
+                <div class="form-group">
+                    <label><i class="fas fa-trophy"></i> PLT_Price &nbsp;<small>(Platinum &mdash; corr=0.7759)</small></label>
+                    <div class="slider-group">
+                        <input type="range" id="pltSlider" min="{{ stats.plt_min }}" max="{{ stats.plt_max }}" value="1100" step="1" oninput="syncInput('pltSlider','pltVal')">
+                        <input type="number" id="pltVal" class="slider-value" value="1100" step="1" oninput="syncSlider('pltVal','pltSlider')">
+                    </div>
+                    <div class="range-hint"><i class="fas fa-info-circle"></i> Dataset ref: {{ stats.plt_min }} – {{ stats.plt_max }} &nbsp;(any value accepted)</div>
+                </div>
+
+                <!-- USDI_Price -->
+                <div class="form-group">
+                    <label><i class="fas fa-dollar-sign"></i> USDI_Price &nbsp;<small>(US Dollar Index &mdash; corr=&minus;0.7216)</small></label>
+                    <div class="slider-group">
+                        <input type="range" id="usdiSlider" min="{{ stats.usdi_min }}" max="{{ stats.usdi_max }}" value="92" step="0.1" oninput="syncInput('usdiSlider','usdiVal')">
+                        <input type="number" id="usdiVal" class="slider-value" value="92" step="0.1" oninput="syncSlider('usdiVal','usdiSlider')">
+                    </div>
+                    <div class="range-hint"><i class="fas fa-info-circle"></i> Dataset ref: {{ stats.usdi_min }} – {{ stats.usdi_max }} &nbsp;(any value accepted)</div>
+                </div>
+
+                <!-- OF_Price -->
+                <div class="form-group">
+                    <label><i class="fas fa-oil-can"></i> OF_Price &nbsp;<small>(Oil Futures &mdash; corr=0.7107)</small></label>
+                    <div class="slider-group">
+                        <input type="range" id="ofSlider" min="{{ stats.of_min }}" max="{{ stats.of_max }}" value="55" step="0.1" oninput="syncInput('ofSlider','ofVal')">
+                        <input type="number" id="ofVal" class="slider-value" value="55" step="0.1" oninput="syncSlider('ofVal','ofSlider')">
+                    </div>
+                    <div class="range-hint"><i class="fas fa-info-circle"></i> Dataset ref: {{ stats.of_min }} – {{ stats.of_max }} &nbsp;(any value accepted)</div>
+                </div>
+
+                <!-- Hidden config: Jinja2 values passed via data-* to avoid JS linter errors -->
+                <div id="app-defaults"
+                     data-sp="{{ stats.sp_mean }}"
+                     data-dj="{{ stats.dj_mean }}"
+                     data-eu="{{ stats.eu_mean }}"
+                     data-pld="{{ stats.pld_mean }}"
+                     data-uso="{{ stats.uso_mean }}"
+                     data-rho="{{ stats.rho_mean }}"
+                     hidden></div>
+
+                <!-- Button row -->
+                <div class="btn-row">
+                    <button class="btn-reset" onclick="resetForm()">
+                        <i class="fas fa-undo"></i> Reset
+                    </button>
+                    <button class="btn btn-gold" onclick="predict()">
+                        <i class="fas fa-magic"></i> &nbsp;Predict GLD Price
+                    </button>
+                </div>
+
+                <div id="errorAlert" class="alert"></div>
+            </div>
+
+            <!-- Result Card -->
+            <div class="predict-result-card">
+                <h2><i class="fas fa-coins" style="color:var(--primary-color);margin-right:8px;"></i>Prediction Result</h2>
+
+                <div class="result-placeholder" id="resultPlaceholder">
+                    <i class="fas fa-coins"></i>
+                    <p>Set the market indicators and click <strong>Predict GLD Price</strong> to get a result.</p>
+                </div>
+
+                <div class="loading-spinner" id="loadingSpinner">
+                    <i class="fas fa-spinner"></i>
+                    <p>Calculating...</p>
+                </div>
+
+                <div class="result-box" id="resultBox">
+                    <div class="result-label">Predicted GLD Close Price</div>
+                    <div class="gld-price-display">
+                        <span>$</span><span id="predictedPrice">—</span>
+                    </div>
+                    <p style="color:var(--text-light);font-size:0.85rem;margin-top:0.3rem;">
+                        Model: KNN (n_neighbors=2) &nbsp;|&nbsp; R² = {{ stats.r2 }}
+                    </p>
+                    <div class="result-metrics" id="inputSummary"></div>
+                </div>
+
+                <!-- Key insight -->
+                <div class="result-info-box">
+                    <h4><i class="fas fa-star" style="color:var(--primary-color);"></i> Key Insight</h4>
+                    <p><strong>GDX_Close</strong> dominates prediction (RF imp = 85.4%).</p>
+                    <p style="margin-top:6px;">Remaining 6 indicators use dataset mean values automatically.</p>
+                </div>
+            </div>
+
+        </div><!-- /predict-layout -->
+    </div><!-- /container -->
+</section>
+
+<!-- Model metrics band -->
+<section class="metrics-band">
+    <div class="container">
+        <div class="metrics-band-grid">
+            <div class="metric-band-item"><h3>{{ stats.r2 }}</h3><p>R² Score</p></div>
+            <div class="metric-band-item"><h3>${{ stats.mae }}</h3><p>MAE</p></div>
+            <div class="metric-band-item"><h3>${{ stats.mse }}</h3><p>MSE</p></div>
+            <div class="metric-band-item"><h3>${{ stats.rmse }}</h3><p>RMSE</p></div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <p>Gold Price Predictor &nbsp;|&nbsp; Built with Flask + Scikit-learn</p>
+    </div>
+</footer>
+
+<script>
+    // ── Dataset means for the 6 hidden features (read from data-* to keep JS valid) ──
+    const _cfg = document.getElementById('app-defaults').dataset;
+    const DEFAULTS = {
+        sp_close  : parseFloat(_cfg.sp),
+        dj_close  : parseFloat(_cfg.dj),
+        eu_price  : parseFloat(_cfg.eu),
+        pld_price : parseFloat(_cfg.pld),
+        uso_close : parseFloat(_cfg.uso),
+        rho_price : parseFloat(_cfg.rho),
+    };
+
+    function syncInput(sliderId, inputId) {
+        document.getElementById(inputId).value = document.getElementById(sliderId).value;
+    }
+    function syncSlider(inputId, sliderId) {
+        const slider = document.getElementById(sliderId);
+        const val    = parseFloat(document.getElementById(inputId).value);
+        if (!isNaN(val)) {
+            slider.value = Math.min(Math.max(val, parseFloat(slider.min)), parseFloat(slider.max));
+        }
+    }
+
+    function resetForm() {
+        const resets = { gdx: 25, sf: 50000, plt: 1100, usdi: 92, of: 55 };
+        for (const [key, val] of Object.entries(resets)) {
+            document.getElementById(key + 'Val').value    = val;
+            document.getElementById(key + 'Slider').value = val;
+        }
+        document.getElementById('resultBox').classList.remove('visible');
+        document.getElementById('resultPlaceholder').style.display = 'block';
+        document.getElementById('errorAlert').className   = 'alert';
+        document.getElementById('errorAlert').textContent = '';
+    }
+
+    async function predict() {
+        const gdx_close  = parseFloat(document.getElementById('gdxVal').value);
+        const sf_price   = parseFloat(document.getElementById('sfVal').value);
+        const plt_price  = parseFloat(document.getElementById('pltVal').value);
+        const usdi_price = parseFloat(document.getElementById('usdiVal').value);
+        const of_price   = parseFloat(document.getElementById('ofVal').value);
+
+        const errorAlert = document.getElementById('errorAlert');
+        errorAlert.className   = 'alert';
+        errorAlert.textContent = '';
+
+        if ([gdx_close, sf_price, plt_price, usdi_price, of_price].some(isNaN)) {
+            errorAlert.className   = 'alert error';
+            errorAlert.textContent = 'Please enter valid numbers for all fields.';
+            return;
+        }
+
+        // Full 11-feature payload; hidden 6 use dataset means
+        const payload = {
+            sp_close   : DEFAULTS.sp_close,
+            dj_close   : DEFAULTS.dj_close,
+            eu_price   : DEFAULTS.eu_price,
+            of_price   : of_price,
+            sf_price   : sf_price,
+            plt_price  : plt_price,
+            pld_price  : DEFAULTS.pld_price,
+            usdi_price : usdi_price,
+            gdx_close  : gdx_close,
+            uso_close  : DEFAULTS.uso_close,
+            rho_price  : DEFAULTS.rho_price,
+        };
+
+        document.getElementById('resultPlaceholder').style.display = 'none';
+        document.getElementById('loadingSpinner').style.display    = 'block';
+        document.getElementById('resultBox').classList.remove('visible');
+
+        try {
+            const resp = await fetch('/api/predict', {
+                method : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body   : JSON.stringify(payload)
+            });
+            const data = await resp.json();
+
+            document.getElementById('loadingSpinner').style.display = 'none';
+
+            if (data.success) {
+                document.getElementById('predictedPrice').textContent = data.predicted_close.toFixed(2);
+                document.getElementById('inputSummary').innerHTML = `
+                    <div class="metric-item"><div class="label">GDX_Close</div><div class="value">${gdx_close.toFixed(2)}</div></div>
+                    <div class="metric-item"><div class="label">SF_Price</div><div class="value">${sf_price.toFixed(0)}</div></div>
+                    <div class="metric-item"><div class="label">PLT_Price</div><div class="value">${plt_price.toFixed(2)}</div></div>
+                    <div class="metric-item"><div class="label">USDI_Price</div><div class="value">${usdi_price.toFixed(2)}</div></div>
+                    <div class="metric-item"><div class="label">OF_Price</div><div class="value">${of_price.toFixed(2)}</div></div>
+                `;
+                document.getElementById('resultBox').classList.add('visible');
+            } else {
+                errorAlert.className   = 'alert error';
+                errorAlert.textContent = 'Prediction failed: ' + data.error;
+                document.getElementById('resultPlaceholder').style.display = 'block';
+            }
+        } catch (err) {
+            document.getElementById('loadingSpinner').style.display = 'none';
+            document.getElementById('resultPlaceholder').style.display = 'block';
+            errorAlert.className   = 'alert error';
+            errorAlert.textContent = 'Could not reach the server. Make sure Flask is running.';
+        }
+    }
+</script>
+
+</body>
+</html>

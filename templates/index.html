@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Price Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="container">
+        <div class="nav-brand">
+            <i class="fas fa-coins"></i>
+            <span>Gold Price AI</span>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/predict">Predict</a></li>
+            <li><a href="/about">About</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="hero-title">Gold Price Prediction</h1>
+            <p class="hero-subtitle">Powered by KNN Regression &nbsp;|&nbsp; R² = {{ stats.r2 }}</p>
+            <p class="hero-description">
+                Predict the GLD (Gold ETF) closing price using real market indicators from 2011–2018.
+                Enter the values and let the AI model estimate the gold price instantly.
+            </p>
+            <div class="hero-buttons">
+                <a href="/predict" class="btn btn-primary">
+                    <i class="fas fa-search-dollar"></i> Predict Now
+                </a>
+                <a href="/about" class="btn btn-secondary">
+                    <i class="fas fa-info-circle"></i> Learn More
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats cards -->
+<section class="stats-section">
+    <div class="container">
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f5a623, #c87d0e);">
+                    <i class="fas fa-database"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ "{:,}".format(stats.total_records) }}</h3>
+                    <p>Total Records</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>${{ stats.close_max }}</h3>
+                    <p>GLD All-Time High</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ (stats.r2 * 100) | round(2) }}%</h3>
+                    <p>Model R² Score</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                    <i class="fas fa-bullseye"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>${{ stats.mae }}</h3>
+                    <p>Avg. Error (MAE)</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Metrics band -->
+<section class="metrics-band">
+    <div class="container">
+        <div class="metrics-band-grid">
+            <div class="metric-band-item"><h3>{{ stats.r2 }}</h3><p>R² Score</p></div>
+            <div class="metric-band-item"><h3>${{ stats.mae }}</h3><p>MAE</p></div>
+            <div class="metric-band-item"><h3>${{ stats.rmse }}</h3><p>RMSE</p></div>
+            <div class="metric-band-item"><h3>{{ stats.optimal_k }}</h3><p>Optimal K</p></div>
+            <div class="metric-band-item">
+                <h3>{{ stats.date_start.split(',')[1].strip() }}–{{ stats.date_end.split(',')[1].strip() }}</h3>
+                <p>Data Range</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features section -->
+<section class="features-section">
+    <div class="container">
+        <h2 class="section-title">Highlights</h2>
+        <div class="features-grid">
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-brain"></i></div>
+                <h3>KNN Regression</h3>
+                <p>Tuned with elbow curve over k=1–20. Optimal n_neighbors=2 achieves R²={{ stats.r2 }} on unseen test data.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-sliders-h"></i></div>
+                <h3>5 Key Indicators</h3>
+                <p>The top 5 most predictive market features: GDX (Gold Miners ETF), Silver Futures, Platinum, US Dollar Index, and Oil Futures.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+                <h3>Instant Prediction</h3>
+                <p>Click Predict and get the estimated GLD ETF closing price immediately via a live API call — no page reload.</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-calendar-alt"></i></div>
+                <h3>7 Years of Data</h3>
+                <p>Trained on {{ "{:,}".format(stats.total_records) }} daily trading records from {{ stats.date_start }} to {{ stats.date_end }}.</p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Dataset reference table -->
+<section class="info-table-section">
+    <div class="container">
+        <h2 class="section-title">Dataset Reference Ranges</h2>
+        <table class="info-table">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>SP_close</strong></td><td>{{ stats.sp_min }}</td><td>{{ stats.sp_max }}</td><td>S&amp;P 500 Index Close</td></tr>
+                <tr><td><strong>DJ_close</strong></td><td>{{ stats.dj_min }}</td><td>{{ stats.dj_max }}</td><td>Dow Jones Industrial Average Close</td></tr>
+                <tr><td><strong>EU_Price</strong></td><td>{{ stats.eu_min }}</td><td>{{ stats.eu_max }}</td><td>Euro / US Dollar Exchange Rate</td></tr>
+                <tr><td><strong>OF_Price</strong></td><td>{{ stats.of_min }}</td><td>{{ stats.of_max }}</td><td>Oil Futures Price (USD)</td></tr>
+                <tr><td><strong>SF_Price</strong></td><td>{{ stats.sf_min }}</td><td>{{ stats.sf_max }}</td><td>Silver Futures Price</td></tr>
+                <tr><td><strong>PLT_Price</strong></td><td>{{ stats.plt_min }}</td><td>{{ stats.plt_max }}</td><td>Platinum Price (USD)</td></tr>
+                <tr><td><strong>PLD_Price</strong></td><td>{{ stats.pld_min }}</td><td>{{ stats.pld_max }}</td><td>Palladium Price (USD)</td></tr>
+                <tr><td><strong>USDI_Price</strong></td><td>{{ stats.usdi_min }}</td><td>{{ stats.usdi_max }}</td><td>US Dollar Index</td></tr>
+                <tr><td><strong>GDX_Close</strong></td><td>{{ stats.gdx_min }}</td><td>{{ stats.gdx_max }}</td><td>Gold Miners ETF Close (strongest predictor)</td></tr>
+                <tr><td><strong>USO_Close</strong></td><td>{{ stats.uso_min }}</td><td>{{ stats.uso_max }}</td><td>Oil ETF Close (USD)</td></tr>
+                <tr><td><strong>RHO_PRICE</strong></td><td>{{ stats.rho_min }}</td><td>{{ stats.rho_max }}</td><td>Rhodium Price (USD)</td></tr>
+                <tr style="background:#fffbe6;font-weight:700;">
+                    <td><strong>Close (Target)</strong></td><td>${{ stats.close_min }}</td><td>${{ stats.close_max }}</td><td>GLD ETF Closing Price — What we predict</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <p>Gold Price Predictor &nbsp;|&nbsp; Built with <a href="https://flask.palletsprojects.com/">Flask</a> + Scikit-learn &nbsp;|&nbsp; Dataset: 2011–2018 Market Data</p>
+    </div>
+</footer>
+
+</body>
+</html>
