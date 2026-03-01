@@ -30,6 +30,8 @@
 
 ## 📌 Table of Contents
 
+- [🔍 Overview](#-overview)
+- [🌐 Live Demo](#-live-demo)
 - [✨ Features](#-features)
 - [🛠️ Tech Stack](#️-tech-stack)
 - [🧠 How It Works](#-how-it-works)
@@ -37,10 +39,36 @@
 - [📁 Dataset Overview](#-dataset-overview)
 - [🗂️ Project Structure](#️-project-structure)
 - [⚙️ Getting Started](#️-getting-started)
-- [🔌 API Reference](#-api-reference)
-- [📓 Notebook](#-notebook)
+- [🚀 Usage](#-usage)
+- [ Notebook](#-notebook)
+- [📈 EDA Highlights](#-eda-highlights)
 - [🤝 Contributing](#-contributing)
 - [📄 License](#-license)
+
+---
+
+## 🔍 Overview
+
+This project builds a complete **end-to-end machine learning pipeline** to predict the price of the **GLD ETF (Gold Exchange-Traded Fund)** based on correlated global market indicators.
+
+The workflow covers:
+
+1. **Exploratory Data Analysis (EDA)** - distributions, trends, outlier detection, and correlation analysis
+2. **Model Training & Comparison** - Linear Regression, Decision Tree, Random Forest, and KNN evaluated head-to-head
+3. **Model Selection** - KNN (k=2) selected via elbow-curve analysis for the lowest error
+4. **Web Application** - Interactive Flask app where users enter market values and get an instant GLD price prediction
+
+---
+
+## 🌐 Live Demo
+
+> Run locally following the [Getting Started](#️-getting-started) steps below.
+
+| Route | Page | Description |
+|:---:|:---|:---|
+| `/` | **Home** | Project overview, dataset statistics & live model metrics |
+| `/predict` | **Predict** | Enter 11 market values → get instant GLD price estimate |
+| `/about` | **About** | Dataset info, model details & feature breakdown |
 
 ---
 
@@ -55,16 +83,6 @@
     <td width="50%">
       <h3>📈 High-Accuracy Model</h3>
       KNN Regressor tuned to <code>k=2</code> via elbow-curve analysis achieves <strong>R² ≈ 0.998</strong>.
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <h3>🌐 REST API</h3>
-      Programmatic access via <code>POST /api/predict</code> - integrate predictions into any app.
-    </td>
-    <td width="50%">
-      <h3>📊 Live Metrics Dashboard</h3>
-      MAE, MSE, RMSE, R², dataset statistics, and date range surfaced directly in the UI.
     </td>
   </tr>
   <tr>
@@ -111,18 +129,22 @@
 
 ## 📊 Model Performance
 
+All models trained on **80%** of the data and evaluated on the remaining **20%** (`random_state=0`).
+
 <div align="center">
 
-| Metric | Score |
-|:---:|:---:|
-| 🏆 **R² Score** | **≈ 0.9983** |
-| 📉 **MAE** | ≈ $0.59 |
-| 📐 **MSE** | ≈ $1.21 |
-| 📏 **RMSE** | ≈ $1.10 |
+| Model | R² | MAE | RMSE |
+|:---|:---:|:---:|:---:|
+| 🥇 **KNN (k=2)** ← _selected_ | **0.9983** | **$0.59** | **$1.10** |
+| Random Forest | 0.9961 | $0.78 | $1.41 |
+| Decision Tree | 0.9934 | $0.91 | $1.83 |
+| Multiple Linear Regression | 0.9612 | $2.44 | $4.45 |
+| Simple Linear Regression | 0.8741 | $4.37 | $8.01 |
 
 </div>
 
-> The model explains **99.83%** of variance in GLD closing prices on completely unseen test data.
+> **KNN with k=2** was selected as the best model based on elbow-curve analysis (k=1 to 20).  
+> It explains **99.83%** of variance in GLD closing prices on completely unseen test data.
 
 ---
 
@@ -130,6 +152,7 @@
 
 | Property | Detail |
 |:---|:---|
+| **Source** | [Kaggle - Gold Price Prediction Dataset](https://www.kaggle.com/datasets/sid321axn/gold-price-prediction-dataset) |
 | **Source file** | `Dataset/FINAL_USO.csv` |
 | **Records** | 1,718 daily rows |
 | **Date Range** | January 2011 – December 2018 |
@@ -146,19 +169,19 @@
 
 <br/>
 
-| # | Feature | Description |
-|:---:|:---|:---|
-| 1 | `SP_close` | S&P 500 Index - daily closing value |
-| 2 | `DJ_close` | Dow Jones Industrial Average - daily close |
-| 3 | `EU_Price` | EUR / USD exchange rate |
-| 4 | `OF_Price` | Crude Oil Futures price (USD / barrel) |
-| 5 | `SF_Price` | Silver Futures price |
-| 6 | `PLT_Price` | Platinum Futures price |
-| 7 | `PLD_Price` | Palladium Futures price |
-| 8 | `USDI_Price` | US Dollar Index |
-| 9 | `GDX_Close` | VanEck Gold Miners ETF - daily close |
-| 10 | `USO_Close` | United States Oil Fund ETF - daily close |
-| 11 | `RHO_PRICE` | Rhodium spot price |
+| # | Feature | Description | Correlation w/ GLD |
+|:---:|:---|:---|:---:|
+| 1 | `SP_close` | S&P 500 Index - daily closing value | +0.63 |
+| 2 | `DJ_close` | Dow Jones Industrial Average - daily close | +0.61 |
+| 3 | `EU_Price` | EUR / USD exchange rate | -0.51 |
+| 4 | `OF_Price` | Crude Oil Futures price (USD / barrel) | +0.29 |
+| 5 | `SF_Price` | Silver Futures price | **+0.87** |
+| 6 | `PLT_Price` | Platinum Futures price | +0.55 |
+| 7 | `PLD_Price` | Palladium Futures price | +0.38 |
+| 8 | `USDI_Price` | US Dollar Index | -0.74 |
+| 9 | `GDX_Close` | VanEck Gold Miners ETF - daily close | **+0.92** |
+| 10 | `USO_Close` | United States Oil Fund ETF - daily close | -0.19 |
+| 11 | `RHO_PRICE` | Rhodium spot price | +0.41 |
 
 </details>
 
@@ -230,89 +253,19 @@ Open **http://127.0.0.1:5001** in your browser. 🎉
 
 ---
 
-## 🔌 API Reference
+## � Usage
 
-### `POST /api/predict`
+### Predict via the Web UI
 
-Accepts market indicator values and returns the predicted GLD closing price.
+Navigate to **http://127.0.0.1:5001/predict**, fill in the 11 market indicator fields, and click **Predict**.
 
-**Request**
+### Run the Jupyter Notebook (EDA)
 
-```http
-POST /api/predict
-Content-Type: application/json
+```bash
+jupyter notebook Gold_predict.ipynb
 ```
 
-```json
-{
-  "sp_close":   185.0,
-  "dj_close":   17500.0,
-  "eu_price":   1.15,
-  "of_price":   55.0,
-  "sf_price":   50000.0,
-  "plt_price":  1100.0,
-  "pld_price":  750.0,
-  "usdi_price": 92.0,
-  "gdx_close":  25.0,
-  "uso_close":  18.0,
-  "rho_price":  1200.0
-}
-```
 
-**Response - 200 OK**
-
-```json
-{
-  "success": true,
-  "predicted_close": 124.76,
-  "inputs": {
-    "SP_close": 185.0,
-    "DJ_close": 17500.0,
-    "EU_Price": 1.15,
-    "OF_Price": 55.0,
-    "SF_Price": 50000.0,
-    "PLT_Price": 1100.0,
-    "PLD_Price": 750.0,
-    "USDI_Price": 92.0,
-    "GDX_Close": 25.0,
-    "USO_Close": 18.0,
-    "RHO_PRICE": 1200.0
-  }
-}
-```
-
-**Response - 400 Bad Request**
-
-```json
-{
-  "success": false,
-  "error": "could not convert string to float: 'abc'"
-}
-```
-
----
-
-### `GET /api/stats`
-
-Returns dataset statistics and live model performance metrics.
-
-```http
-GET /api/stats
-```
-
-```json
-{
-  "total_records": 1718,
-  "date_start": "Jan 02, 2011",
-  "date_end":   "Dec 31, 2018",
-  "r2":   0.9983,
-  "mae":  0.59,
-  "rmse": 1.1,
-  "best_model": "KNN (n_neighbors=2)"
-}
-```
-
----
 
 ## 📓 Notebook
 
@@ -320,11 +273,23 @@ GET /api/stats
 
 | Section | Content |
 |:---|:---|
-| **EDA** | Distributions, box plots, correlation heatmap, outlier analysis |
-| **Feature Engineering** | Selection of the 11 most predictive indicators |
-| **Model Comparison** | Linear Regression vs SVR vs Random Forest vs KNN |
+| **EDA** | Distributions, box plots, correlation heatmap, pairplot, outlier analysis |
+| **Feature Engineering** | Selection of the 11 most predictive market indicators |
+| **Model Comparison** | Simple LR, Multiple LR, Decision Tree, Random Forest, KNN |
 | **Elbow Curve** | RMSE vs `k` (1–20) to identify optimal `k = 2` |
 | **Final Evaluation** | MAE, MSE, RMSE, R² on held-out test set |
+
+---
+
+## 📈 EDA Highlights
+
+- **No missing values** and **no duplicate rows** found in the dataset
+- **GDX_Close** (Gold Miners ETF) has the strongest positive correlation with GLD (`+0.92`)
+- **SF_Price** (Silver) is the second most correlated feature (`+0.87`)
+- **USDI_Price** (US Dollar Index) shows the strongest inverse relationship (`-0.74`)
+- **USO_Close** (Oil ETF) has the highest negative correlation among commodity features (`-0.19`)
+- Outlier analysis performed via IQR method on skewed distributions
+- Heatmap confirms multicollinearity between equity indices (SP_close, DJ_close)
 
 ---
 
@@ -359,7 +324,7 @@ Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more informa
 
 <div align="center">
 
-**Built with 💛 by [Anubhab](https://github.com/anubhab1601)**
+**Built with ❤️ by [Anubhab](https://github.com/anubhab1601)**
 
 <br/>
 
@@ -370,4 +335,5 @@ If this project helped you, please consider giving it a ⭐ - it means a lot!
 [![GitHub followers](https://img.shields.io/github/followers/anubhab1601?style=social)](https://github.com/anubhab1601)
 
 </div>
+
 
